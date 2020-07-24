@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<!-- 
+	CDATA : Character Data란 뜻으로 매퍼파일을 파싱할 때
+		XML Parser에 의해 해석하지 말고 문자열을 그대로 출력해야할 때 사용한다.
+		즉 파싱의 대상에서 제외할 때 사용한다.
+ -->
+
+<mapper namespace="geolocation.SearchRadiusImpl">
+	<select id="searchRadius" resultType="geolocation.MyFacilityDTO">
+		SELECT
+			hp_name, hp_sido, hp_gugun, hp_addr, hp_url, hp_latitude,
+			hp_longitude, trunc(to_number(DISTANCE_WGS84(#{param2},
+				#{param3}, hp_latitude, hp_longitude)),5) AS disKM,
+			ROWNUM AS rNum
+		FROM
+			global_facility
+		WHERE
+			trunc(to_number(DISTANCE_WGS84(#{param2}, #{param3},
+				hp_latitude, hp_longitude)),5)<![CDATA[<=]]>#{param1}
+			AND ROWNUM BETWEEN 1 and 200
+		ORDER BY trunc(to_number(DISTANCE_WGS84(#{param2}, #{param3},
+			hp_latitude, hp_longitude)),5) ASC
+	</select>
+</mapper>
